@@ -1,0 +1,52 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- build
+
+pool: Default
+
+
+steps:
+- task:  FlutterInstall@0
+  displayName: Setup flutter
+  inputs:
+    channel: 'stable'
+
+
+- task: DownloadSecureFile@1
+  name: keyStore # The name with which to reference the secure file's path on the agent, like $(mySecureFile.secureFilePath)
+  inputs:
+    secureFile: upload.keystore
+
+- script: |
+    echo Copy file to android/app directory
+    cp $(keyStore.secureFilePath) $(Build.Repository.LocalPath)/android/app/upload.keystore
+  displayName: 'Install Keystore'
+
+- script: |
+    echo %FPATH%
+    echo Build id on %APPCENTER_BUILD_ID%
+    set PATH=%FPATH%;%PATH%;
+    flutter -v build appbundle --target-platform android-arm,android-arm64
+  displayName: 'Make App Bundle'
+  env:
+    FPATH: $(FlutterToolPath)
+    APPCENTER_KEYSTORE_PASSWORD: $(APPCENTER_KEYSTORE_PASSWORD)
+    APPCENTER_KEY_ALIAS: $(APPCENTER_KEY_ALIAS)
+    APPCENTER_KEY_PASSWORD: $(APPCENTER_KEY_PASSWORD)
+    APPCENTER_BUILD_ID: $(Build.BuildId)
+
+- script: |
+    echo Clean keystore
+    rm $(Build.Repository.LocalPath)\android\app\upload.keystore
+  displayName: 'Clean Keystore'
+
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: apks'
+  inputs:
+    PathtoPublish: $(Build.Repository.LocalPath)/build/app/outputs/bundle/release
+

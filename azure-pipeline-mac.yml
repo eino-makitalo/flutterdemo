@@ -1,0 +1,74 @@
+trigger:
+- build
+
+pool: default
+
+steps:
+- task: InstallSSHKey@0
+  inputs:
+   knownHostsEntry: '$(known_hosts)'
+   sshPublicKey: '$(id_rsa_pub)'
+   sshKeySecureFile: 'id_rsa'
+  displayName: 'SSH for git fastlane match'
+
+- script: 'brew install fastlane'
+  displayName: 'Install fastlane by brew'
+
+- script: |
+   gem install bundler
+   echo bundle update
+   bundle update --bundler
+   echo bundle install
+   bundle install
+  workingDirectory: ios
+  displayName: 'Install bundle (fastlane etc)'
+
+- script: |
+    bundle exec fastlane ios profile
+  workingDirectory: ios
+  displayName: 'Fastlane match / build number'
+  env:
+    LANG: $(LANG)
+    MATCH_PASSWORD: $(MATCH_PASSWORD)
+    FASTLANE_USER: $(FASTLANE_USER)
+    FASTLANE_PASSWORD: $(FASTLANE_PASSWORD)
+    FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: $(FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD)
+    FASTLANE_SESSION: $(FASTLANE_SESSION)
+    MATCH_KEYCHAIN_NAME: $(MATCH_KEYCHAIN_NAME)
+    MATCH_KEYCHAIN_PASSWORD: $(MATCH_KEYCHAIN_PASSWORD)
+
+- task: FlutterInstall@0
+  displayName: 'Install Flutter beta'
+  inputs:
+    channel: 'stable'
+
+- task: FlutterBuild@0
+  displayName: 'Build for ios (flutter)'
+  inputs:
+    target: ios
+    buildName: '$(package.version)'
+    iosCodesign: false
+
+- task: Xcode@5
+  displayName: "Build with Xcode"
+  inputs:
+    actions: 'build'
+    scheme: 'Runner'
+    sdk: 'iphoneos14.0'
+    configuration: 'Release'
+    xcWorkspacePath: '**/Runner.xcworkspace'
+    xcodeVersion: 'default'
+    packageApp: true
+    signingOption: 'manual'
+    signingIdentity: 'Apple Distribution: Eino Makitalo (64MBX9RXY6)'
+    provisioningProfileUuid: 'ae45253d-01aa-48ab-b920-bad7dd308025'
+
+- task: AppStoreRelease@1
+  displayName: 'Publish to  TestFlight'
+  inputs:
+    serviceEndpoint: 'AppStore'
+    appIdentifier: '$(bundleId)'
+    shouldSkipWaitingForProcessing: true
+    teamId: '$(APPLE_TEAM_ID)'
+    teamName: '$(APPLE_TEAM_NAME)'
+
