@@ -8,13 +8,7 @@ trigger:
 
 pool: Default
 
-
 steps:
-- task:  FlutterInstall@0
-  displayName: Setup flutter
-  inputs:
-    channel: 'stable'
-
 
 - task: DownloadSecureFile@1
   name: keyStore # The name with which to reference the secure file's path on the agent, like $(mySecureFile.secureFilePath)
