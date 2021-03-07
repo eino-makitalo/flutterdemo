@@ -31,7 +31,7 @@ steps:
 
 - script: |
     echo Clean keystore
-    rm $(Build.Repository.LocalPath)\android\app\upload.keystore
+    rm $(Build.Repository.LocalPath)/android/app/upload.keystore
   displayName: 'Clean Keystore'
 
 
@@ -39,4 +39,6 @@ steps:
   displayName: 'Publish Artifact: apks'
   inputs:
     PathtoPublish: $(Build.Repository.LocalPath)/build/app/outputs/bundle/release
+
+- task: Fix path in 
 
