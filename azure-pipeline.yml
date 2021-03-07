@@ -40,5 +40,4 @@ steps:
   inputs:
     PathtoPublish: $(Build.Repository.LocalPath)/build/app/outputs/bundle/release
 
-- task: Fix path in 
 
