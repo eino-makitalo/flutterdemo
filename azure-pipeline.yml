@@ -21,13 +21,9 @@ steps:
   displayName: 'Install Keystore'
 
 - script: |
-    echo %FPATH%
-    echo Build id on %APPCENTER_BUILD_ID%
-    set PATH=%FPATH%;%PATH%;
     flutter -v build appbundle --target-platform android-arm,android-arm64
   displayName: 'Make App Bundle'
   env:
-    FPATH: $(FlutterToolPath)
     APPCENTER_KEYSTORE_PASSWORD: $(APPCENTER_KEYSTORE_PASSWORD)
     APPCENTER_KEY_ALIAS: $(APPCENTER_KEY_ALIAS)
     APPCENTER_KEY_PASSWORD: $(APPCENTER_KEY_PASSWORD)
