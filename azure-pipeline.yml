@@ -39,7 +39,8 @@ steps:
 
 
 - script: |
-    fastlane supply  --aab $(Build.Repository.LocalPath)/build/app/outputs/bundle/release/app-release.aab --track internal  --json_key $(appjson.secureFilePath) --release_status draft --package_name fi.bitit.flutterdemo
+    echo fastlane supply  --aab $(Build.Repository.LocalPath)/build/app/outputs/bundle/release/app-release.aab --track internal  --json_key $(appjson.secureFilePath) --release_status draft --package_name fi.bitit.flutterdemo
+    fastlane upload_to_play_store_internal_app_sharing --aab $(Build.Repository.LocalPath)/build/app/outputs/bundle/release/app-release.aab --json_key $(appjson.secureFilePath) --package_name fi.bitit.flutterdemo
 
 - script: |
     echo Remove securefiles
