@@ -18,6 +18,11 @@ steps:
   inputs:
     secureFile: upload.keystore
 
+- task: DownloadSecureFile@1
+  name: appjson # The name with which to reference the secure file's path on the agent, like $(mySecureFile.secureFilePath)
+  inputs:
+    secureFile: bitit-appcenter-api-4906382300011793390-749671-67207996945b.json
+
 - script: |
     echo Copy file to android/app directory
     cp $(keyStore.secureFilePath) $(Build.Repository.LocalPath)/android/app/upload.keystore
@@ -32,11 +37,15 @@ steps:
     APPCENTER_KEY_PASSWORD: $(APPCENTER_KEY_PASSWORD)
     APPCENTER_BUILD_ID: $(Build.BuildId)
 
-- script: |
-    echo Clean keystore
-    rm $(Build.Repository.LocalPath)/android/app/upload.keystore
-  displayName: 'Clean Keystore'
 
+- script: |
+    fastlane supply -aab $(Build.Repository.LocalPath)/build/app/outputs/bundle/release/app-release.aab -track internal  -json_key $(appjson.secureFilePath) -package_name fi.bitit.flutterdemo
+
+- script: |
+    echo Remove securefiles
+    rm $(Build.Repository.LocalPath)/android/app/upload.keystore
+    rm $(appjson.secureFilePath)
+  displayName: 'Remove securefiles'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Bundle'
