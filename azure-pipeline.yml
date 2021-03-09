@@ -37,9 +37,9 @@ steps:
     rm $(Build.Repository.LocalPath)/android/app/upload.keystore
   displayName: 'Clean Keystore'
 
-- task: GooglePlayRelease@2
+- task: GooglePlayReleaseBundle@3
   inputs:
-    apkFile: '**/*.aab'
+    bundleFile: '**/*.aab'
     serviceEndpoint: 'Google Play'
     track: 'internal'
 
